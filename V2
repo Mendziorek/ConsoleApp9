@@ -1,0 +1,57 @@
+using System.Text;
+
+namespace lyczydlo
+{
+    class Calculator
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Witaj w kalkulatorze wypłaty WOD-KAN Trans, postępuj proszę zgodnie z komunikatami poniżej aby poznać prawdę.");
+
+            int stawkaGodzinowa = ReadInput<int>("Na początek podaj swoją stawkę godzinową.");
+            int suroweGodziny = ReadInput<int>("Podaj faktyczną ilość godzin spędzonych w pracy (bez urlopu).");
+            int urlopZdrowotny14 = ReadInput<int>("Podaj teraz ilość godzin spędzoną na L4, jeżeli brak wpisz '0'.");
+            int urlopWypoczynkowy = ReadInput<int>("Podaj ilość godzin spędzonych na urlopie, jeżeli brak wpisz '0'.");
+
+            //sobota to 100, godziny z soboty są we wszystkich godzinach surowych.
+            int sobota = ReadInput<int>("Podaj teraz przepracowaną ilość sobót.");
+
+            //premia uznaniowa za godziny przepracowane, chuj wie od czego zależy.
+            decimal premia_u = 0.2m;
+            decimal premial4 = urlopZdrowotny14 > 0 ? 0 : 0.1m;
+
+            #region -- Obliczenia
+            decimal podstawa = stawkaGodzinowa * suroweGodziny;
+            decimal podstawa1 = 3261.53m;
+            int stawka_podstawowa = suroweGodziny * stawkaGodzinowa;
+            int stawka_urlopowa = urlopWypoczynkowy * stawkaGodzinowa;
+            int stawka_sobota = sobota * 100;
+            decimal premia = -podstawa + (stawka_podstawowa * premial4) + (stawka_podstawowa * premia_u) + stawka_podstawowa + stawka_urlopowa + stawka_sobota;
+            #endregion
+
+            StringBuilder resultInfo = new($"{NewLine(1)}");
+            resultInfo.AppendLine($"Przyjęto wynagrodzenie podstawowe w wysokości {podstawa1} PLN podstawy, przelewu na konto. {NewLine(1)}");
+            resultInfo.AppendLine($"Twoje wynagrodzenie wyniesie: {podstawa1} - przelewu na konto oraz: {premia + podstawa - podstawa1} - w kopercie.");
+            resultInfo.AppendLine($"Razem: {premia + podstawa} PLN".PadLeft(90));
+            resultInfo.AppendLine($"Przechodzę do początku... {NewLine(3)}");
+
+            Console.Write(resultInfo.ToString());
+        }
+
+        private static T ReadInput<T>(string message)
+        {
+            Console.WriteLine(message);
+            return ChangeType<T>(Console.ReadLine() ?? throw new Exception($"Wartość nie może być pusta!"));
+        }
+
+        private static T ChangeType<T>(object input)
+        {
+            return (T)Convert.ChangeType(input, typeof(T));
+        }
+
+        private static string NewLine(int linesCount)
+        {
+            return string.Join(string.Empty, Enumerable.Range(0, linesCount).Select(x => Environment.NewLine));
+        }
+    }
+}
